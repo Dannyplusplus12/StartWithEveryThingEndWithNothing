@@ -1,6 +1,6 @@
 import pygame
 
-from src.utils import load_img, load_imgs, Animation
+from src.utils import load_img, load_imgs, load_json, Animation
 from src.player import Player
 from src.map import Map
 from src.clouds import Clouds
@@ -27,22 +27,27 @@ class Game:
 			'clouds': load_imgs('clouds'),
 			'cmtree': load_imgs('cmtree'),
 			'player/idle': Animation(load_imgs('player/idle'), img_dur=18),
+			'player/idle/offset': load_json('player/idle/offset.json'),
 			'player/run': Animation(load_imgs('player/run'), img_dur=8),
+			'player/run/offset': load_json('player/run/offset.json'),
 			'player/hold': Animation(load_imgs('player/hold'), img_dur=1),
+			'player/hold/offset': load_json('player/hold/offset.json'),
+			'gift': load_imgs('gift'),
 		}
 
 
-		self.player = Player(self, [100, -100])
-		self.map = Map(self)
-		self.clouds = Clouds(self.assets['clouds'])
-
-		self.map.load('map.json')
-
+ 
 		self.scroll = [0, 0]
 		
 		self.arrow_input = [False, False, False, False]
 		self.hold_jump_timer = 0
 		self.hold_jump_time = 0
+
+		self.player = Player(self, [200, -300])
+		self.map = Map(self)
+		self.clouds = Clouds(self.assets['clouds'])
+
+		self.map.load('map.json')
 
 	def run(self):
 		while True:
@@ -55,9 +60,10 @@ class Game:
 			self.clouds.update()
 			self.clouds.render(self.display, offset = render_scroll)
 
+			self.map.update()
 			self.map.render(self.display, offset = render_scroll)
 			
-			self.player.update(self.map.physics_rects_around(self.player.pos, self.player.size))
+			self.player.update(self.map.gift_left)
 			self.player.render(self.display, offset = render_scroll)
 
 

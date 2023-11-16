@@ -22,10 +22,12 @@ class Map:
 		self.tile_size = tile_size
 		self.tile_map = {}
 		self.offgrid_tiles = []
+		self.cmtrees = []
+		self.player_pos = [0, 0]
 
 	def save(self, path):
 		f = open(path, 'w')
-		json.dump({'tile_map': self.tile_map, 'tile_size': self.tile_size, 'offgrid': self.offgrid_tiles}, f)
+		json.dump({'tile_map': self.tile_map, 'tile_size': self.tile_size, 'offgrid': self.offgrid_tiles, 'cmtrees': self.cmtrees, 'player': self.player_pos}, f)
 		f.close()
 
 	def load(self, path):
@@ -36,6 +38,9 @@ class Map:
 		self.tile_map = map_data['tile_map']
 		self.tile_size = map_data['tile_size']
 		self.offgrid_tiles = map_data['offgrid']
+		self.cmtrees = map_data['cmtrees']
+		self.gift_left = len([loc for loc in self.cmtrees if loc['index'] == 0])
+
 
 	def auto_tile(self):
 		for loc in self.tile_map:
@@ -73,6 +78,17 @@ class Map:
 
 		return rects
 
+	def update_cmtrees(self):
+		for tile in self.cmtrees:
+			entity_rect = self.game.player.rect()
+			tile_rect = pygame.Rect(tile['pos'][0], tile['pos'][1], self.game.assets[tile['type']][tile['index']].get_width(), self.game.assets[tile['type']][tile['index']].get_height())
+			if(entity_rect.colliderect(tile_rect) and tile['index'] == 0):
+				tile['index'] = 1
+				self.gift_left -= 1
+
+	def update(self):
+		self.update_cmtrees()
+
 	def render(self, surf, offset=(0, 0)):
 		for loc in self.offgrid_tiles:
 			tile = loc
@@ -85,3 +101,6 @@ class Map:
 					tile = self.tile_map[loc]
 					surf.blit(self.game.assets[tile['type']][tile['index']], (tile['pos'][0]*self.tile_size-offset[0], tile['pos'][1]*self.tile_size-offset[1]))
 		
+		for loc in self.cmtrees:
+			tile = loc
+			surf.blit(self.game.assets[tile['type']][tile['index']], (tile['pos'][0]-offset[0], tile['pos'][1]-offset[1]))

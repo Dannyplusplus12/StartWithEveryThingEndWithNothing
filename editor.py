@@ -14,6 +14,7 @@ class Editor:
 
 		self.screen = pygame.display.set_mode((800, 500))
 		self.display = pygame.Surface((480, 300))
+		# self.display2 = pygame.Surface((480, 300))
 
 		self.CLOCK = pygame.time.Clock()
 
@@ -22,6 +23,7 @@ class Editor:
 			'ground_1/type_2': load_imgs('ground_1/type_2'),
 			'ground_2': load_imgs('ground_2'),
 			'cmtree': load_imgs('cmtree'),
+			'player': load_img('player/idle/1.png'),
 		}
 
 		
@@ -56,7 +58,10 @@ class Editor:
 
 			self.map.render(self.display, offset=render_scroll)
 
-			current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_index]
+			if(self.tile_list[self.tile_group] != 'player'):
+				current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_index]
+			else:
+				current_tile_img = self.assets[self.tile_list[self.tile_group]]
 			current_tile_img.set_alpha(100)
 			self.display.blit(current_tile_img, (5, 5))
 
@@ -83,6 +88,12 @@ class Editor:
 					if(tile_r.colliderect(mouse_rect)):
 						self.map.offgrid_tiles.remove(tile)
 
+				for tile in self.map.cmtrees.copy():
+					tile_img = self.assets[tile['type']][tile['index']]
+					tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
+					if(tile_r.colliderect(mouse_rect)):
+						self.map.cmtrees.remove(tile)
+
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -92,7 +103,12 @@ class Editor:
 					if event.button == 1:
 						self.left_clicking = True
 						if not self.on_grid:
-							self.map.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'index': self.tile_index, 'pos': (mouse_pos[0] + self.scroll[0], mouse_pos[1] + self.scroll[1])})
+							if(self.tile_list[self.tile_group] == 'cmtree'):
+								self.map.cmtrees.append({'type': self.tile_list[self.tile_group], 'index': self.tile_index, 'pos': (mouse_pos[0] + self.scroll[0], mouse_pos[1] + self.scroll[1])})
+							elif(self.tile_list[self.tile_group] == 'player'):
+								self.map.player_pos = [mouse_pos[0]+self.scroll[0], mouse_pos[1]+self.scroll[1]]
+							else:
+								self.map.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'index': self.tile_index, 'pos': (mouse_pos[0] + self.scroll[0], mouse_pos[1] + self.scroll[1])})
 					if event.button == 3:
 						self.right_clicking = True
 					if self.shift:
@@ -103,8 +119,10 @@ class Editor:
 					else:
 						if event.button == 4:
 							self.tile_group = (self.tile_group - 1) % len(self.tile_list)
+							self.tile_index = 0
 						if event.button == 5:
 							self.tile_group = (self.tile_group + 1) % len(self.tile_list)
+							self.tile_index = 0
 
 				if event.type == pygame.MOUSEBUTTONUP:
 					if event.button == 1:
@@ -145,7 +163,7 @@ class Editor:
 					if event.key == pygame.K_LSHIFT:
 						self.shift = False
 						
-
+			# self.display2.blit(pygame.transform.scale(self.display, (self.display.get_width()*0.5, self.display.get_height()*0.5)), (0, 0))
 			self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
 
 			self.CLOCK.tick(60)

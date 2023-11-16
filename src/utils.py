@@ -1,5 +1,5 @@
 import pygame
-import os
+import os, json
 
 BASE_IMG_PATH = 'assets/imgs/'
 
@@ -13,10 +13,19 @@ def load_img(path):
 def load_imgs(path):
 	imgs = []
 	for img_name in sorted(os.listdir(BASE_IMG_PATH + path)):
-		imgs.append(load_img(path + '/' + img_name))
+		try:
+			imgs.append(load_img(path + '/' + img_name))
+		except:
+			pass
 
 	return imgs
 
+def load_json(path):
+	f = open(BASE_IMG_PATH + '/' + path, 'r')
+	map_data = json.load(f)
+	f.close()
+
+	return map_data
 
 class Animation:
 	def __init__(self, imgs, img_dur=5, loop=True):
