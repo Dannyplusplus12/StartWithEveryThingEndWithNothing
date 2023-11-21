@@ -13,7 +13,7 @@ AUTO_TILE_MAP = {
 	tuple(sorted([(-1, 0), (0, -1)])): 8,
 }
 
-PHYSICS_TILES = ['ground_1/type_1', 'ground_1/type_2', 'ground_2']
+PHYSICS_TILES = ['ground_1/type_1', 'ground_1/type_2', 'ground_2', 'black']
 AUTO_TILE_TYPES = ['ground_1/type_1', 'ground_1/type_2', 'ground_2']
 
 class Map:
@@ -27,7 +27,7 @@ class Map:
 
 	def save(self, path):
 		f = open(path, 'w')
-		json.dump({'tile_map': self.tile_map, 'tile_size': self.tile_size, 'offgrid': self.offgrid_tiles, 'cmtrees': self.cmtrees, 'player': self.player_pos}, f)
+		json.dump({'tile_map': self.tile_map, 'tile_size': self.tile_size, 'offgrid': self.offgrid_tiles, 'cmtrees': self.cmtrees, 'player': [self.player_pos[0], self.player_pos[1]]}, f)
 		f.close()
 
 	def load(self, path):
@@ -40,6 +40,7 @@ class Map:
 		self.offgrid_tiles = map_data['offgrid']
 		self.cmtrees = map_data['cmtrees']
 		self.gift_left = len([loc for loc in self.cmtrees if loc['index'] == 0])
+		self.player_pos = map_data['player']
 
 
 	def auto_tile(self):
@@ -85,6 +86,12 @@ class Map:
 			if(entity_rect.colliderect(tile_rect) and tile['index'] == 0):
 				tile['index'] = 1
 				self.gift_left -= 1
+
+	def finish(self):
+		if(self.gift_left == 0):
+			return True
+		else:
+			return False
 
 	def update(self):
 		self.update_cmtrees()

@@ -77,6 +77,7 @@ class Player:
 		self.direction[0] = 0
 
 	def vertical_moverment(self):
+		self.apply_gravity()
 		self.jump()
 
 		entity_rect = self.rect()
@@ -103,10 +104,9 @@ class Player:
 		self.direction[1] += (-self.jump_speed)*self.hold_jump_time*0.05
 
 	def update_moverment(self):
-		self.horizontral_moverment()
-		self.vertical_moverment()
 		self.update_by_input()
-		self.apply_gravity()
+		self.vertical_moverment()
+		self.horizontral_moverment()
 
 	def update_animation(self):
 		if(self.direction[0] != 0):

@@ -6,7 +6,7 @@ from src.map import Map
 import sys
 
 RENDER_SCALE = 1.6
-
+INDEX = 2
 
 class Editor:
 	def __init__(self, tile_size=16):
@@ -24,6 +24,11 @@ class Editor:
 			'ground_2': load_imgs('ground_2'),
 			'cmtree': load_imgs('cmtree'),
 			'player': load_img('player/idle/1.png'),
+			'candle': load_imgs('candle'),
+			'door': load_imgs('door'),
+			'chain': load_imgs('chain'),
+			'other': load_imgs('other'),
+			'black': load_imgs('black'),
 		}
 
 		
@@ -39,7 +44,7 @@ class Editor:
 		self.map = Map(self)
 
 		try:
-			self.map.load('map.json')
+			self.map.load('map/' + str(INDEX) + '.json')
 		except FileNotFoundError:
 			pass
 
@@ -55,13 +60,12 @@ class Editor:
 			self.scroll[0] += (self.moverment[1] - self.moverment[0]) * 2
 			self.scroll[1] += (self.moverment[3] - self.moverment[2]) * 2
 			render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
-
 			self.map.render(self.display, offset=render_scroll)
 
 			if(self.tile_list[self.tile_group] != 'player'):
-				current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_index]
+				current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_index].copy()
 			else:
-				current_tile_img = self.assets[self.tile_list[self.tile_group]]
+				current_tile_img = self.assets[self.tile_list[self.tile_group]].copy()
 			current_tile_img.set_alpha(100)
 			self.display.blit(current_tile_img, (5, 5))
 
@@ -149,7 +153,7 @@ class Editor:
 					if event.key == pygame.K_t:
 						self.map.auto_tile()
 					if event.key == pygame.K_s:
-						self.map.save('map.json')
+						self.map.save('map/' + str(INDEX) + '.json')
 
 				if event.type == pygame.KEYUP:
 					if event.key == pygame.K_LEFT:
